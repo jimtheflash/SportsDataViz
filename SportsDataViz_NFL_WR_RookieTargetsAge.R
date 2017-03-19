@@ -45,18 +45,23 @@ for (i in unique(wrDF.fixedcols$Age)) {
 }
 
 
-gg <- ggplot(data = wrDF.fixedcols, 
-             mapping = aes(x = Age, y = Tgt, label = paste0(Player, 
-                                                                ' (', touches, 
-                                                                ')'))) +
-  scale_x_continuous(breaks = min(wrDF.fixedcols$Age):max(wrDF.fixedcols$Age)) +
-  geom_jitter(alpha = 0.4, size = 3, width = 0.1) +
-  geom_text(data = subset(wrDF.fixedcols, Player %in% maxTgts), nudge_y = 5) +
-  # geom_label_repel(data = subset(wrDF.fixedcols, Player %in% maxAtts)) +
-  geom_boxplot(aes(group = Age), fill = NA, outlier.shape = NA) +
+# make the plot
+g <- ggplot(data = wrDF.fixedcols, 
+            mapping = aes(x = Age, y = Tgt, label = paste0(Player, 
+                                                               ' (', Tgt, 
+                                                               ')'))) +
+  scale_x_continuous(breaks = min(wrDF.fixedcols$Age):max(wrDF.fixedcols$Age),
+                     expand = c(.1, .1)) +
+  geom_jitter(alpha = .2, size = 2, width = 0.05) +
+  geom_text(data = subset(wrDF.fixedcols, Player %in% maxTgts), nudge_y = 10, size = rel(3)) +
+  geom_boxplot(aes(group = Age), fill = NA, outlier.shape = NA, width = 0.25) +
   xlab('Rookie Season Age') +
-  ylab('Passing Targets') +
-  ggtitle(label = 'Season Total Targets, By NFL Rookie Wide Receivers, By Rookie Season Age', subtitle = '(Player With Maximum Touches By Age Called Out; Minimum 32 Targets)') +
-  theme_minimal()
-gg
-
+  ylab('Targets') +
+  ggtitle(label = 'Total Targets, Rookie Season, NFL Wide Receivers, By Rookie Season Age', subtitle = '(Minimum 32 Targets; Ages Are Years; Labeled Points Are Players With Highest Rookie Targets For Age)') +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+# see it
+g
+# save it
+ggsave('NFL_WR_RookieTargetsAge.jpg', plot = g, units = 'in',
+       width = 10, height = 5)  
