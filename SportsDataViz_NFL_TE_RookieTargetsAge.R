@@ -57,7 +57,7 @@ g <- ggplot(data = teDF.fixedcols,
   geom_boxplot(aes(group = Age), fill = NA, outlier.shape = NA, width = 0.25) +
   xlab('Rookie Season Age') +
   ylab('Targets') +
-  ggtitle(label = 'Total Targets, Rookie Season, NFL Tight Ends, By Rookie Season Age', subtitle = '(Minimum 32 Targets; Ages Are Years; Labeled Points Are Players With Highest Rookie Targets For Age)') +
+  ggtitle(label = 'Total Targets, Rookie Season, NFL Tight Ends, By Rookie Season Age', subtitle = '(Minimum 20 Targets; Ages In Years; Labeled Points Are Players With Highest Rookie Targets For Age)') +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
 # see it
