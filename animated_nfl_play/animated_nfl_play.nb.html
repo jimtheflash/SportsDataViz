@@ -239,62 +239,97 @@ $(document).ready(function () {
 
 
 <!-- rnb-text-begin -->
-<p>This is an example of how to create an animated data visualization using <code>plotly</code> and packages in <code>tidyverse</code> (primarily <code>dplyr</code> and <code>ggplot2</code>) with NFL Next Gen Stats, which translate a player’s spatiotemporal information during NFL games onto a coordinate grid.</p>
-<div id="version" class="section level3">
-<h3>Version</h3>
-<p>Before you get started, here’s info on the software and hardware I used to generate this notebook, along with package versions:</p>
+<!-- rnb-text-end -->
+<!-- rnb-text-begin -->
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>This is an example of how to create an animated NFL play using <code>plotly</code> and <code>tidyverse</code> with Next Gen Stats NFL data.</p>
+<p>The data used in this example was structured from the data available as part of the <a href="https://www.kaggle.com/c/NFL-Punt-Analytics-Competition">Kaggle NFL Punt Analytics Competition</a>. I’m not sure if <em>all</em> NFL NGS data is structured the same way as the data provided in the competition.</p>
+</div>
+<div id="environment" class="section level2">
+<h2>Environment</h2>
+<p>Here’s some info about the hardware and software used to create this document:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBzeXN0ZW1cbnZlcnNpb25cbmBgYCJ9 -->
-<pre class="r"><code># system
-version</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICAgXyAgICAgICAgICAgICAgICAgICAgICAgICAgIFxucGxhdGZvcm0gICAgICAgeDg2XzY0LWFwcGxlLWRhcndpbjE1LjYuMCAgIFxuYXJjaCAgICAgICAgICAgeDg2XzY0ICAgICAgICAgICAgICAgICAgICAgIFxub3MgICAgICAgICAgICAgZGFyd2luMTUuNi4wICAgICAgICAgICAgICAgIFxuc3lzdGVtICAgICAgICAgeDg2XzY0LCBkYXJ3aW4xNS42LjAgICAgICAgIFxuc3RhdHVzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxubWFqb3IgICAgICAgICAgMyAgICAgICAgICAgICAgICAgICAgICAgICAgIFxubWlub3IgICAgICAgICAgNS4xICAgICAgICAgICAgICAgICAgICAgICAgIFxueWVhciAgICAgICAgICAgMjAxOCAgICAgICAgICAgICAgICAgICAgICAgIFxubW9udGggICAgICAgICAgMDcgICAgICAgICAgICAgICAgICAgICAgICAgIFxuZGF5ICAgICAgICAgICAgMDIgICAgICAgICAgICAgICAgICAgICAgICAgIFxuc3ZuIHJldiAgICAgICAgNzQ5NDcgICAgICAgICAgICAgICAgICAgICAgIFxubGFuZ3VhZ2UgICAgICAgUiAgICAgICAgICAgICAgICAgICAgICAgICAgIFxudmVyc2lvbi5zdHJpbmcgUiB2ZXJzaW9uIDMuNS4xICgyMDE4LTA3LTAyKVxubmlja25hbWUgICAgICAgRmVhdGhlciBTcHJheSAgICAgICAgICAgICAgIFxuIn0= -->
-<pre><code>               _                           
-platform       x86_64-apple-darwin15.6.0   
-arch           x86_64                      
-os             darwin15.6.0                
-system         x86_64, darwin15.6.0        
-status                                     
-major          3                           
-minor          5.1                         
-year           2018                        
-month          07                          
-day            02                          
-svn rev        74947                       
-language       R                           
-version.string R version 3.5.1 (2018-07-02)
-nickname       Feather Spray               </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBwbG90bHlcbnBhY2thZ2VWZXJzaW9uKFwicGxvdGx5XCIpXG5gYGAifQ== -->
-<pre class="r"><code># plotly
-packageVersion(&quot;plotly&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIOKAmDQuOC4w4oCZXG4ifQ== -->
-<pre><code>[1] ‘4.8.0’</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aWR5dmVyc2VcbnBhY2thZ2VWZXJzaW9uKFwidGlkeXZlcnNlXCIpXG5gYGAifQ== -->
-<pre class="r"><code># tidyverse
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBzeXN0ZW0gaW5mb1xudmVyc2lvblxuIyBwbG90bHkgdmVyc2lvblxubGlicmFyeShwbG90bHkpXG5wYWNrYWdlVmVyc2lvbihcInBsb3RseVwiKVxuIyB0aWR5dmVyc2UgdmVyc2lvblxubGlicmFyeSh0aWR5dmVyc2UpXG5wYWNrYWdlVmVyc2lvbihcInRpZHl2ZXJzZVwiKVxuYGBgIn0= -->
+<pre class="r"><code># system info
+version
+# plotly version
+library(plotly)
+packageVersion(&quot;plotly&quot;)
+# tidyverse version
+library(tidyverse)
 packageVersion(&quot;tidyverse&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIOKAmDEuMi4x4oCZXG4ifQ== -->
-<pre><code>[1] ‘1.2.1’</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>The data used here is a single play from the <a href="https://www.kaggle.com/c/NFL-Punt-Analytics-Competition/data">Kaggle NFL Punt Analytics Competition</a>.</p>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>First, import the data. You should have 3300 rows and 17 columns. You can get a lot more info about the actual fields from the Kaggle competition’s data tab, but some additional info you’ll find relevant:<br />
+* x and y are cartesian coordinates<br />
+* Side is an engineered field for coloring the points on the punting and receiving teams<br />
+* centered_time and display_time are derived from the Time field; display_time starts around the time the players get to the line, and ends shortly after the play is whistled dead</p>
+<p>Running this block will give you some info about the columns that are imported as well.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5wdXQgPC0gcmVhZHI6OnJlYWRfY3N2KFwiaHR0cHM6Ly93d3cuZ2l0aHViLmNvbS9qaW10aGVmbGFzaC9cIilcbmBgYCJ9 -->
-<pre class="r"><code>input &lt;- readr::read_csv(&quot;https://www.github.com/jimtheflash/&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5wdXQgPC0gcmVhZHI6OnJlYWRfY3N2KFwiaHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2ppbXRoZWZsYXNoL1Nwb3J0c0RhdGFWaXovbWFzdGVyL2FuaW1hdGVkX25mbF9wbGF5L2FuaW1hdGVkX25mbF9wbGF5X2RlbW8uY3N2XCIpXG5gYGAifQ== -->
+<pre class="r"><code>input &lt;- readr::read_csv(&quot;https://raw.githubusercontent.com/jimtheflash/SportsDataViz/master/animated_nfl_play/animated_nfl_play_demo.csv&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike <em>Knit</em>, <em>Preview</em> does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.</p>
+</div>
+<div id="plots" class="section level2">
+<h2>Plots</h2>
+<p>Once the data are imported, the next step is to build a <code>ggplot</code> object. A couple of unique things to call out:<br />
+* the grid on which the points will be plotted sets the origin at the back corner of one home endzone, and increments by yards (close to meters!), such that the playing field lies within the rectangular plane (0, 0) to (120, 53.3)<br />
+* the aesthetics ids and frame are pretty important here: setting ids ensures that <code>plotly</code> always treats the same point on the screen as the same player, and frame enables represents the time dimension that <code>plotly</code> uses in animations<br />
+* the label aesthetic seems to be common in <code>plotly</code> as well, and is typically used in conjunction with <code>geom_text()</code> because <code>plotly</code> apparently can’t handle <code>geom_label()</code> at present</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBidWlsZCB0aGUgcGxvdFxucCA8LSBnZ3Bsb3QyOjpnZ3Bsb3QoaW5wdXQsIGdncGxvdDI6OmFlcyh4ID0geCwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHkgPSB5LCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29sb3IgPSBTaWRlLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZHMgPSBHU0lTSUQsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZyYW1lID0gZGlzcGxheV90aW1lKSkgK1xuICBnZ3Bsb3QyOjpnZW9tX3BvaW50KHNpemUgPSAzLCBhbHBoYSA9IC42KSArXG4gIGdncGxvdDI6Omdlb21fdGV4dChnZ3Bsb3QyOjphZXMobGFiZWwgPSBSb2xlKSwgc2l6ZSA9IDEuNSwgY29sb3IgPSAnYmxhY2snKSArXG4gIGdncGxvdDI6OnRoZW1lX21pbmltYWwoKSArXG4gIGdncGxvdDI6OnRoZW1lKGxlZ2VuZC5wb3NpdGlvbiA9IFwibm9uZVwiKVxuXG4jIGRpc3BsYXkgdGhlIHBsb3RcbnBcbmBgYCJ9 -->
+<pre class="r"><code># build the plot
+p &lt;- ggplot2::ggplot(input, ggplot2::aes(x = x, 
+                                         y = y, 
+                                         color = Side,
+                                         ids = GSISID,
+                                         frame = display_time)) +
+  ggplot2::geom_point(size = 3, alpha = .6) +
+  ggplot2::geom_text(ggplot2::aes(label = Role), size = 1.5, color = 'black') +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position = &quot;none&quot;)
+
+# display the plot
+p</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>This is what you get when you look at all the animation frames at once, which might be useful if you’re trying to quickly eyeball which players covered the most ground during a play, but there are definitely more effective ways to communicate that information. If you want to filter to see a static shot, just select all the rows with the same display_time using something like <code>dplyr::filter(input, display_time == 1)</code>.</p>
+</div>
+<div id="animation" class="section level2">
+<h2>Animation</h2>
+<p>If the correct aesthetics are specified in the plot, building an animation is trivially easy! The additional step of adding <code>plotly::animation_opts()</code> lets us view the animation in real-time.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBjb252ZXJ0IHRoZSBnZ3Bsb3QgaW50byBhIHBsb3RseVxuYW5pbWF0ZWRfcCA8LSBwbG90bHk6OmdncGxvdGx5KHApICU+JVxuICBwbG90bHk6OmFuaW1hdGlvbl9vcHRzKGZyYW1lID0gMTAwKVxuXG4jIHByZXN0byFcbmFuaW1hdGVkX3BcbmBgYCJ9 -->
+<pre class="r"><code># convert the ggplot into a plotly
+animated_p &lt;- plotly::ggplotly(p) %&gt;%
+  plotly::animation_opts(frame = 100)
+
+# presto!
+animated_p</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>There are obviously a lot of things that you can do to tidy this up:<br />
+* you can create a more useful field-grid (e.g. using a bunch of <code>ggplot2::geom_segment()</code> calls)<br />
+* you can add a button to pause the animation (I suspect)<br />
+* you can flag temporal events with labels to more easily identify when the ball is snapped and when the play is over<br />
+* you can bug the NFL to add an easy way to track the ball</p>
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQW5pbWF0ZWQgTkZMIFBsYXkiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgaXMgYW4gZXhhbXBsZSBvZiBob3cgdG8gY3JlYXRlIGFuIGFuaW1hdGVkIGRhdGEgdmlzdWFsaXphdGlvbiB1c2luZyBgcGxvdGx5YCBhbmQgcGFja2FnZXMgaW4gYHRpZHl2ZXJzZWAgKHByaW1hcmlseSBgZHBseXJgIGFuZCBgZ2dwbG90MmApIHdpdGggTkZMIE5leHQgR2VuIFN0YXRzLCB3aGljaCB0cmFuc2xhdGUgYSBwbGF5ZXIncyBzcGF0aW90ZW1wb3JhbCBpbmZvcm1hdGlvbiBkdXJpbmcgTkZMIGdhbWVzIG9udG8gYSBjb29yZGluYXRlIGdyaWQuCgojIyMgVmVyc2lvbgoKQmVmb3JlIHlvdSBnZXQgc3RhcnRlZCwgaGVyZSdzIGluZm8gb24gdGhlIHNvZnR3YXJlIGFuZCBoYXJkd2FyZSBJIHVzZWQgdG8gZ2VuZXJhdGUgdGhpcyBub3RlYm9vaywgYWxvbmcgd2l0aCBwYWNrYWdlIHZlcnNpb25zOgoKYGBge3J9CiMgc3lzdGVtCnZlcnNpb24KIyBwbG90bHkKcGFja2FnZVZlcnNpb24oInBsb3RseSIpCiMgdGlkeXZlcnNlCnBhY2thZ2VWZXJzaW9uKCJ0aWR5dmVyc2UiKQpgYGAKClRoZSBkYXRhIHVzZWQgaGVyZSBpcyBhIHNpbmdsZSBwbGF5IGZyb20gdGhlIFtLYWdnbGUgTkZMIFB1bnQgQW5hbHl0aWNzIENvbXBldGl0aW9uXShodHRwczovL3d3dy5rYWdnbGUuY29tL2MvTkZMLVB1bnQtQW5hbHl0aWNzLUNvbXBldGl0aW9uL2RhdGEpLiAKCmBgYHtyfQppbnB1dCA8LSByZWFkcjo6cmVhZF9jc3YoImh0dHBzOi8vd3d3LmdpdGh1Yi5jb20vamltdGhlZmxhc2gvIikKYGBgCgpUaGUgcHJldmlldyBzaG93cyB5b3UgYSByZW5kZXJlZCBIVE1MIGNvcHkgb2YgdGhlIGNvbnRlbnRzIG9mIHRoZSBlZGl0b3IuIENvbnNlcXVlbnRseSwgdW5saWtlICpLbml0KiwgKlByZXZpZXcqIGRvZXMgbm90IHJ1biBhbnkgUiBjb2RlIGNodW5rcy4gSW5zdGVhZCwgdGhlIG91dHB1dCBvZiB0aGUgY2h1bmsgd2hlbiBpdCB3YXMgbGFzdCBydW4gaW4gdGhlIGVkaXRvciBpcyBkaXNwbGF5ZWQuCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQW5pbWF0ZWQgTkZMIFBsYXkiCm91dHB1dDogaHRtbF9kb2N1bWVudAotLS0KCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpCmBgYAoKIyMgT3ZlcnZpZXcKClRoaXMgaXMgYW4gZXhhbXBsZSBvZiBob3cgdG8gY3JlYXRlIGFuIGFuaW1hdGVkIE5GTCBwbGF5IHVzaW5nIGBwbG90bHlgIGFuZCBgdGlkeXZlcnNlYCB3aXRoIE5leHQgR2VuIFN0YXRzIE5GTCBkYXRhLgoKVGhlIGRhdGEgdXNlZCBpbiB0aGlzIGV4YW1wbGUgd2FzIHN0cnVjdHVyZWQgZnJvbSB0aGUgZGF0YSBhdmFpbGFibGUgYXMgcGFydCBvZiB0aGUgW0thZ2dsZSBORkwgUHVudCBBbmFseXRpY3MgQ29tcGV0aXRpb25dKGh0dHBzOi8vd3d3LmthZ2dsZS5jb20vYy9ORkwtUHVudC1BbmFseXRpY3MtQ29tcGV0aXRpb24pLiBJJ20gbm90IHN1cmUgaWYgKmFsbCogTkZMIE5HUyBkYXRhIGlzIHN0cnVjdHVyZWQgdGhlIHNhbWUgd2F5IGFzIHRoZSBkYXRhIHByb3ZpZGVkIGluIHRoZSBjb21wZXRpdGlvbi4KCiMjIEVudmlyb25tZW50CgpIZXJlJ3Mgc29tZSBpbmZvIGFib3V0IHRoZSBoYXJkd2FyZSBhbmQgc29mdHdhcmUgdXNlZCB0byBjcmVhdGUgdGhpcyBkb2N1bWVudDoKCmBgYHtyIG1lc3NhZ2U9RkFMU0V9CiMgc3lzdGVtIGluZm8KdmVyc2lvbgojIHBsb3RseSB2ZXJzaW9uCmxpYnJhcnkocGxvdGx5KQpwYWNrYWdlVmVyc2lvbigicGxvdGx5IikKIyB0aWR5dmVyc2UgdmVyc2lvbgpsaWJyYXJ5KHRpZHl2ZXJzZSkKcGFja2FnZVZlcnNpb24oInRpZHl2ZXJzZSIpCmBgYAoKIyMgRGF0YQoKRmlyc3QsIGltcG9ydCB0aGUgZGF0YS4gWW91IHNob3VsZCBoYXZlIDMzMDAgcm93cyBhbmQgMTcgY29sdW1ucy4gWW91IGNhbiBnZXQgYSBsb3QgbW9yZSBpbmZvIGFib3V0IHRoZSBhY3R1YWwgZmllbGRzIGZyb20gdGhlIEthZ2dsZSBjb21wZXRpdGlvbidzIGRhdGEgdGFiLCBidXQgc29tZSBhZGRpdGlvbmFsIGluZm8geW91J2xsIGZpbmQgcmVsZXZhbnQ6ICAKKiB4IGFuZCB5IGFyZSBjYXJ0ZXNpYW4gY29vcmRpbmF0ZXMgIAoqIFNpZGUgaXMgYW4gZW5naW5lZXJlZCBmaWVsZCBmb3IgY29sb3JpbmcgdGhlIHBvaW50cyBvbiB0aGUgcHVudGluZyBhbmQgcmVjZWl2aW5nIHRlYW1zICAKKiBjZW50ZXJlZF90aW1lIGFuZCBkaXNwbGF5X3RpbWUgYXJlIGRlcml2ZWQgZnJvbSB0aGUgVGltZSBmaWVsZDsgZGlzcGxheV90aW1lIHN0YXJ0cyBhcm91bmQgdGhlIHRpbWUgdGhlIHBsYXllcnMgZ2V0IHRvIHRoZSBsaW5lLCBhbmQgZW5kcyBzaG9ydGx5IGFmdGVyIHRoZSBwbGF5IGlzIHdoaXN0bGVkIGRlYWQgIAoKUnVubmluZyB0aGlzIGJsb2NrIHdpbGwgZ2l2ZSB5b3Ugc29tZSBpbmZvIGFib3V0IHRoZSBjb2x1bW5zIHRoYXQgYXJlIGltcG9ydGVkIGFzIHdlbGwuCgpgYGB7ciBtZXNzYWdlPUZBTFNFfQppbnB1dCA8LSByZWFkcjo6cmVhZF9jc3YoImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9qaW10aGVmbGFzaC9TcG9ydHNEYXRhVml6L21hc3Rlci9hbmltYXRlZF9uZmxfcGxheS9hbmltYXRlZF9uZmxfcGxheV9kZW1vLmNzdiIpCmBgYAoKIyMgUGxvdHMKCk9uY2UgdGhlIGRhdGEgYXJlIGltcG9ydGVkLCB0aGUgbmV4dCBzdGVwIGlzIHRvIGJ1aWxkIGEgYGdncGxvdGAgb2JqZWN0LiBBIGNvdXBsZSBvZiB1bmlxdWUgdGhpbmdzIHRvIGNhbGwgb3V0OiAgCiogdGhlIGdyaWQgb24gd2hpY2ggdGhlIHBvaW50cyB3aWxsIGJlIHBsb3R0ZWQgc2V0cyB0aGUgb3JpZ2luIGF0IHRoZSBiYWNrIGNvcm5lciBvZiBvbmUgaG9tZSBlbmR6b25lLCBhbmQgaW5jcmVtZW50cyBieSB5YXJkcyAoY2xvc2UgdG8gbWV0ZXJzISksIHN1Y2ggdGhhdCB0aGUgcGxheWluZyBmaWVsZCBsaWVzIHdpdGhpbiB0aGUgcmVjdGFuZ3VsYXIgcGxhbmUgKDAsIDApIHRvICgxMjAsIDUzLjMpICAKKiB0aGUgYWVzdGhldGljcyBpZHMgYW5kIGZyYW1lIGFyZSBwcmV0dHkgaW1wb3J0YW50IGhlcmU6IHNldHRpbmcgaWRzIGVuc3VyZXMgdGhhdCBgcGxvdGx5YCBhbHdheXMgdHJlYXRzIHRoZSBzYW1lIHBvaW50IG9uIHRoZSBzY3JlZW4gYXMgdGhlIHNhbWUgcGxheWVyLCBhbmQgZnJhbWUgZW5hYmxlcyByZXByZXNlbnRzIHRoZSB0aW1lIGRpbWVuc2lvbiB0aGF0IGBwbG90bHlgIHVzZXMgaW4gYW5pbWF0aW9ucyAgCiogdGhlIGxhYmVsIGFlc3RoZXRpYyBzZWVtcyB0byBiZSBjb21tb24gaW4gYHBsb3RseWAgYXMgd2VsbCwgYW5kIGlzIHR5cGljYWxseSB1c2VkIGluIGNvbmp1bmN0aW9uIHdpdGggYGdlb21fdGV4dCgpYCBiZWNhdXNlIGBwbG90bHlgIGFwcGFyZW50bHkgY2FuJ3QgaGFuZGxlIGBnZW9tX2xhYmVsKClgIGF0IHByZXNlbnQgIAoKYGBge3J9CiMgYnVpbGQgdGhlIHBsb3QKcCA8LSBnZ3Bsb3QyOjpnZ3Bsb3QoaW5wdXQsIGdncGxvdDI6OmFlcyh4ID0geCwgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgeSA9IHksIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbG9yID0gU2lkZSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZHMgPSBHU0lTSUQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZnJhbWUgPSBkaXNwbGF5X3RpbWUpKSArCiAgZ2dwbG90Mjo6Z2VvbV9wb2ludChzaXplID0gMywgYWxwaGEgPSAuNikgKwogIGdncGxvdDI6Omdlb21fdGV4dChnZ3Bsb3QyOjphZXMobGFiZWwgPSBSb2xlKSwgc2l6ZSA9IDEuNSwgY29sb3IgPSAnYmxhY2snKSArCiAgZ2dwbG90Mjo6dGhlbWVfbWluaW1hbCgpICsKICBnZ3Bsb3QyOjp0aGVtZShsZWdlbmQucG9zaXRpb24gPSAibm9uZSIpCgojIGRpc3BsYXkgdGhlIHBsb3QKcApgYGAKVGhpcyBpcyB3aGF0IHlvdSBnZXQgd2hlbiB5b3UgbG9vayBhdCBhbGwgdGhlIGFuaW1hdGlvbiBmcmFtZXMgYXQgb25jZSwgd2hpY2ggbWlnaHQgYmUgdXNlZnVsIGlmIHlvdSdyZSB0cnlpbmcgdG8gcXVpY2tseSBleWViYWxsIHdoaWNoIHBsYXllcnMgY292ZXJlZCB0aGUgbW9zdCBncm91bmQgZHVyaW5nIGEgcGxheSwgYnV0IHRoZXJlIGFyZSBkZWZpbml0ZWx5IG1vcmUgZWZmZWN0aXZlIHdheXMgdG8gY29tbXVuaWNhdGUgdGhhdCBpbmZvcm1hdGlvbi4gSWYgeW91IHdhbnQgdG8gZmlsdGVyIHRvIHNlZSBhIHN0YXRpYyBzaG90LCBqdXN0IHNlbGVjdCBhbGwgdGhlIHJvd3Mgd2l0aCB0aGUgc2FtZSBkaXNwbGF5X3RpbWUgdXNpbmcgc29tZXRoaW5nIGxpa2UgYGRwbHlyOjpmaWx0ZXIoaW5wdXQsIGRpc3BsYXlfdGltZSA9PSAxKWAuCgojIyBBbmltYXRpb24KCklmIHRoZSBjb3JyZWN0IGFlc3RoZXRpY3MgYXJlIHNwZWNpZmllZCBpbiB0aGUgcGxvdCwgYnVpbGRpbmcgYW4gYW5pbWF0aW9uIGlzIHRyaXZpYWxseSBlYXN5ISBUaGUgYWRkaXRpb25hbCBzdGVwIG9mIGFkZGluZyBgcGxvdGx5OjphbmltYXRpb25fb3B0cygpYCBsZXRzIHVzIHZpZXcgdGhlIGFuaW1hdGlvbiBpbiByZWFsLXRpbWUuCmBgYHtyfQojIGNvbnZlcnQgdGhlIGdncGxvdCBpbnRvIGEgcGxvdGx5CmFuaW1hdGVkX3AgPC0gcGxvdGx5OjpnZ3Bsb3RseShwKSAlPiUKICBwbG90bHk6OmFuaW1hdGlvbl9vcHRzKGZyYW1lID0gMTAwKQoKIyBwcmVzdG8hCmFuaW1hdGVkX3AKYGBgCgpUaGVyZSBhcmUgb2J2aW91c2x5IGEgbG90IG9mIHRoaW5ncyB0aGF0IHlvdSBjYW4gZG8gdG8gdGlkeSB0aGlzIHVwOiAgCiogeW91IGNhbiBjcmVhdGUgYSBtb3JlIHVzZWZ1bCBmaWVsZC1ncmlkIChlLmcuIHVzaW5nIGEgYnVuY2ggb2YgYGdncGxvdDI6Omdlb21fc2VnbWVudCgpYCBjYWxscykgIAoqIHlvdSBjYW4gYWRkIGEgYnV0dG9uIHRvIHBhdXNlIHRoZSBhbmltYXRpb24gKEkgc3VzcGVjdCkgIAoqIHlvdSBjYW4gZmxhZyB0ZW1wb3JhbCBldmVudHMgd2l0aCBsYWJlbHMgdG8gbW9yZSBlYXNpbHkgaWRlbnRpZnkgd2hlbiB0aGUgYmFsbCBpcyBzbmFwcGVkIGFuZCB3aGVuIHRoZSBwbGF5IGlzIG92ZXIgIAoqIHlvdSBjYW4gYnVnIHRoZSBORkwgdG8gYWRkIGFuIGVhc3kgd2F5IHRvIHRyYWNrIHRoZSBiYWxs</div>
 
 
 

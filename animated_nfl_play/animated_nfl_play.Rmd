@@ -1,28 +1,84 @@
 ---
 title: "Animated NFL Play"
-output: html_notebook
+output: html_document
 ---
 
-This is an example of how to create an animated data visualization using `plotly` and packages in `tidyverse` (primarily `dplyr` and `ggplot2`) with NFL Next Gen Stats, which translate a player's spatiotemporal information during NFL games onto a coordinate grid.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-### Version
+## Overview
 
-Before you get started, here's info on the software and hardware I used to generate this notebook, along with package versions:
+This is an example of how to create an animated NFL play using `plotly` and `tidyverse` with Next Gen Stats NFL data.
 
-```{r}
-# system
+The data used in this example was structured from the data available as part of the [Kaggle NFL Punt Analytics Competition](https://www.kaggle.com/c/NFL-Punt-Analytics-Competition). I'm not sure if *all* NFL NGS data is structured the same way as the data provided in the competition.
+
+## Environment
+
+Here's some info about the hardware and software used to create this document:
+
+```{r message=FALSE}
+# system info
 version
-# plotly
+# plotly version
+library(plotly)
 packageVersion("plotly")
-# tidyverse
+# tidyverse version
+library(tidyverse)
 packageVersion("tidyverse")
 ```
 
-The data used here is a single play from the [Kaggle NFL Punt Analytics Competition](https://www.kaggle.com/c/NFL-Punt-Analytics-Competition/data). 
+## Data
 
-```{r}
-input <- readr::read_csv("https://www.github.com/jimtheflash/")
+First, import the data. You should have 3300 rows and 17 columns. You can get a lot more info about the actual fields from the Kaggle competition's data tab, but some additional info you'll find relevant:  
+* x and y are cartesian coordinates  
+* Side is an engineered field for coloring the points on the punting and receiving teams  
+* centered_time and display_time are derived from the Time field; display_time starts around the time the players get to the line, and ends shortly after the play is whistled dead  
+
+Running this block will give you some info about the columns that are imported as well.
+
+```{r message=FALSE}
+input <- readr::read_csv("https://raw.githubusercontent.com/jimtheflash/SportsDataViz/master/animated_nfl_play/animated_nfl_play_demo.csv")
 ```
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+## Plots
 
+Once the data are imported, the next step is to build a `ggplot` object. A couple of unique things to call out:  
+* the grid on which the points will be plotted sets the origin at the back corner of one home endzone, and increments by yards (close to meters!), such that the playing field lies within the rectangular plane (0, 0) to (120, 53.3)  
+* the aesthetics ids and frame are pretty important here: setting ids ensures that `plotly` always treats the same point on the screen as the same player, and frame enables represents the time dimension that `plotly` uses in animations  
+* the label aesthetic seems to be common in `plotly` as well, and is typically used in conjunction with `geom_text()` because `plotly` apparently can't handle `geom_label()` at present  
+
+```{r}
+# build the plot
+p <- ggplot2::ggplot(input, ggplot2::aes(x = x, 
+                                         y = y, 
+                                         color = Side,
+                                         ids = GSISID,
+                                         frame = display_time)) +
+  ggplot2::geom_point(size = 3, alpha = .6) +
+  ggplot2::geom_text(ggplot2::aes(label = Role), size = 1.5, color = 'black') +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position = "none")
+
+# display the plot
+p
+```
+This is what you get when you look at all the animation frames at once, which might be useful if you're trying to quickly eyeball which players covered the most ground during a play, but there are definitely more effective ways to communicate that information. If you want to filter to see a static shot, just select all the rows with the same display_time using something like `dplyr::filter(input, display_time == 1)`.
+
+## Animation
+
+If the correct aesthetics are specified in the plot, building an animation is trivially easy! The additional step of adding `plotly::animation_opts()` lets us view the animation in real-time.
+```{r}
+# convert the ggplot into a plotly
+animated_p <- plotly::ggplotly(p) %>%
+  plotly::animation_opts(frame = 100)
+
+# presto!
+animated_p
+```
+
+There are obviously a lot of things that you can do to tidy this up:  
+* you can create a more useful field-grid (e.g. using a bunch of `ggplot2::geom_segment()` calls)  
+* you can add a button to pause the animation (I suspect)  
+* you can flag temporal events with labels to more easily identify when the ball is snapped and when the play is over  
+* you can bug the NFL to add an easy way to track the ball
