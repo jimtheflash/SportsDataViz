@@ -1,0 +1,28 @@
+---
+title: "Animated NFL Play"
+output: html_notebook
+---
+
+This is an example of how to create an animated data visualization using `plotly` and packages in `tidyverse` (primarily `dplyr` and `ggplot2`) with NFL Next Gen Stats, which translate a player's spatiotemporal information during NFL games onto a coordinate grid.
+
+### Version
+
+Before you get started, here's info on the software and hardware I used to generate this notebook, along with package versions:
+
+```{r}
+# system
+version
+# plotly
+packageVersion("plotly")
+# tidyverse
+packageVersion("tidyverse")
+```
+
+The data used here is a single play from the [Kaggle NFL Punt Analytics Competition](https://www.kaggle.com/c/NFL-Punt-Analytics-Competition/data). 
+
+```{r}
+input <- readr::read_csv("https://www.github.com/jimtheflash/")
+```
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
